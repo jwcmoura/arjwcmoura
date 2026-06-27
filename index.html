@@ -35,18 +35,34 @@
       gap: 16px; align-items: center; justify-content: center; pointer-events: all;
     }
     #ar-buttons.visible { display: flex; }
-
     .ar-btn {
       display: flex; flex-direction: column; align-items: center; gap: 6px;
       text-decoration: none; pointer-events: all;
-      animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+      opacity: 0;
+      transform: translateY(80px) scale(0.5);
+      transition: none;
     }
-    .ar-btn:nth-child(1) { animation-delay: 0s; }
-    .ar-btn:nth-child(2) { animation-delay: .08s; }
-    .ar-btn:nth-child(3) { animation-delay: .16s; }
-    @keyframes popIn {
-      from { opacity: 0; transform: translateY(24px) scale(.7); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
+    .ar-btn.slide-in {
+      animation: slideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .ar-btn.slide-out {
+      animation: slideDown 0.5s cubic-bezier(0.55, 0, 1, 0.45) both;
+    }
+    .ar-btn:nth-child(1).slide-in { animation-delay: 0s; }
+    .ar-btn:nth-child(2).slide-in { animation-delay: 0.18s; }
+    .ar-btn:nth-child(3).slide-in { animation-delay: 0.36s; }
+    .ar-btn:nth-child(1).slide-out { animation-delay: 0.12s; }
+    .ar-btn:nth-child(2).slide-out { animation-delay: 0.06s; }
+    .ar-btn:nth-child(3).slide-out { animation-delay: 0s; }
+    @keyframes slideUp {
+      0%   { opacity: 0; transform: translateY(100px) scale(0.4); filter: blur(6px); }
+      60%  { opacity: 1; filter: blur(0px); }
+      80%  { transform: translateY(-8px) scale(1.05); }
+      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+    }
+    @keyframes slideDown {
+      0%   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+      100% { opacity: 0; transform: translateY(80px) scale(0.4); filter: blur(6px); }
     }
     .ar-btn-circle {
       width: 58px; height: 58px; border-radius: 50%;
@@ -122,7 +138,7 @@
 
   <!-- Botões flutuantes -->
   <div id="ar-buttons">
-    <a id="btn-whatsapp" class="ar-btn" href="https://wa.me/5583999890848" target="_blank">
+    <a id="btn-whatsapp" class="ar-btn" href="https://wa.me/5583998908488" target="_blank">
       <div class="ar-btn-circle">
         <svg width="26" height="26" viewBox="0 0 32 32" fill="#fff">
           <path d="M16 0C7.164 0 0 7.163 0 16c0 2.825.738 5.484 2.027 7.795L0 32l8.412-2.004A15.93 15.93 0 0 0 16 32c8.836 0 16-7.163 16-16S24.836 0 16 0zm0 29.538a13.51 13.51 0 0 1-6.88-1.883l-.493-.292-5.197 1.238 1.265-4.999-.32-.512A13.472 13.472 0 0 1 2.462 16C2.462 8.517 8.517 2.462 16 2.462S29.538 8.517 29.538 16 23.483 29.538 16 29.538zm7.406-10.116c-.406-.203-2.4-1.184-2.772-1.32-.372-.135-.643-.203-.913.203-.271.406-1.048 1.32-1.285 1.59-.237.271-.474.304-.88.101-.406-.203-1.714-.632-3.263-2.015-1.206-1.076-2.02-2.405-2.257-2.811-.237-.406-.025-.625.178-.827.183-.181.406-.474.61-.711.203-.237.27-.406.406-.677.135-.271.068-.508-.034-.711-.101-.203-.913-2.203-1.251-3.016-.33-.791-.664-.684-.913-.696l-.778-.013c-.271 0-.711.101-1.083.508-.372.406-1.42 1.387-1.42 3.382s1.454 3.923 1.657 4.194c.203.271 2.862 4.372 6.933 6.131.969.418 1.724.668 2.313.856.972.309 1.857.265 2.557.161.78-.116 2.4-.981 2.738-1.928.338-.947.338-1.76.237-1.928-.101-.169-.372-.271-.778-.474z"/>
@@ -160,33 +176,60 @@
     device-orientation-permission-ui="enabled: false"
   >
     <a-assets>
-      <a-asset-item id="character" src="./walkingV2.glb"></a-asset-item>
+      <!-- O vídeo precisa ser um MP4 direto — YouTube não funciona como textura 3D -->
+      <!-- Substitua VIDEO_URL pelo link direto do seu MP4 hospedado -->
+      <video
+        id="ar-video"
+        src="./video-adv-jwcmoura.mp4"
+        autoplay
+        loop
+        muted
+        playsinline
+        crossorigin="anonymous"
+        webkit-playsinline
+      ></video>
     </a-assets>
 
-    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <!-- Luz ambiente -->
-    <a-light type="ambient" color="#ffffff" intensity="1.2"></a-light>
-    <a-light type="directional" color="#ffffff" intensity="0.8" position="1 2 1"></a-light>
+    <a-camera position="0 0 0" look-controls="enabled: false" id="main-camera"></a-camera>
+    <a-light type="ambient" color="#ffffff" intensity="1.5"></a-light>
 
     <a-entity mindar-image-target="targetIndex: 0" id="marker">
 
-      <!-- Boneco 3D andando em círculo em volta do marcador -->
-      <a-entity id="walker-pivot" position="0 0 0">
-        <a-entity
-          id="walker"
-          gltf-model="#character"
-          scale="0.4 0.4 0.4"
-          position="0.6 0 0"
-          rotation="0 90 0"
-          animation-mixer="clip: *; loop: repeat; timeScale: 1;"
-        ></a-entity>
-      </a-entity>
+      <!-- Tela billboard: sempre olha para a câmera -->
+      <a-plane
+        id="video-screen"
+        material="shader: flat; src: #ar-video; side: double;"
+        width="1.6"
+        height="0.9"
+        position="0 0.5 0"
+        shadow="cast: false"
+        billboard
+      >
+        <a-animation
+          attribute="scale"
+          from="0 0 0"
+          to="1 1 1"
+          dur="600"
+          easing="easeOutBack"
+          fill="forwards"
+        ></a-animation>
+      </a-plane>
 
     </a-entity>
   </a-scene>
 
   <script>
+    // Componente billboard — tela sempre vira para a câmera
+    AFRAME.registerComponent('billboard', {
+      tick: function () {
+        const camera = document.getElementById('main-camera');
+        if (!camera) return;
+        const camPos = new THREE.Vector3();
+        camera.object3D.getWorldPosition(camPos);
+        this.el.object3D.lookAt(camPos);
+      }
+    });
+
     // Detecta Instagram/Facebook
     const ua = navigator.userAgent || '';
     if (/Instagram|FBAN|FBAV|FB_IAB/i.test(ua)) {
@@ -197,19 +240,7 @@
     const statusText = document.getElementById('status-text');
     const loading    = document.getElementById('loading');
     const arButtons  = document.getElementById('ar-buttons');
-    const pivot      = document.getElementById('walker-pivot');
-
-    let angle = 0;
-    let walking = false;
-    let rafId = null;
-
-    // Animação de rotação em volta do marcador
-    function animateWalk() {
-      angle += 0.5; // velocidade de caminhada
-      if (angle >= 360) angle = 0;
-      pivot.setAttribute('rotation', { x: 0, y: angle, z: 0 });
-      rafId = requestAnimationFrame(animateWalk);
-    }
+    const arVideo    = document.getElementById('ar-video');
 
     document.querySelector('a-scene').addEventListener('loaded', () => {
       loading.classList.add('hidden');
@@ -219,29 +250,29 @@
     const marker = document.getElementById('marker');
 
     marker.addEventListener('targetFound', () => {
-      dot.className = 'found';
-      statusText.textContent = 'Marcador encontrado!';
+      dot.className = 'playing';
+      statusText.textContent = 'Reproduzindo…';
       arButtons.classList.add('visible');
-      // Reinicia animação dos botões
+      // Animação de entrada deslizante
       document.querySelectorAll('.ar-btn').forEach(btn => {
-        btn.style.animation = 'none';
-        btn.offsetHeight;
-        btn.style.animation = '';
+        btn.classList.remove('slide-out');
+        void btn.offsetHeight; // força reflow
+        btn.classList.add('slide-in');
       });
-      // Inicia rotação
-      if (!walking) {
-        walking = true;
-        animateWalk();
-      }
+      if (arVideo) arVideo.play();
     });
 
     marker.addEventListener('targetLost', () => {
       dot.className = '';
       statusText.textContent = 'Aponte para o marcador JC';
-      arButtons.classList.remove('visible');
-      // Para rotação
-      walking = false;
-      if (rafId) cancelAnimationFrame(rafId);
+      // Animação de saída
+      document.querySelectorAll('.ar-btn').forEach(btn => {
+        btn.classList.remove('slide-in');
+        void btn.offsetHeight;
+        btn.classList.add('slide-out');
+      });
+      setTimeout(() => arButtons.classList.remove('visible'), 700);
+      if (arVideo) arVideo.pause();
     });
   </script>
 </body>
