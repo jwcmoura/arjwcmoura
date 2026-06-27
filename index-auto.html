@@ -3,68 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>WebAR – Logo JWCMOURA</title>
+  <title>WebAR – Marcador JC</title>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image.prod.js"></script>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+    body { overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
     #hud {
       position: fixed; top: 0; left: 0; right: 0; z-index: 999;
       display: flex; flex-direction: column; align-items: center; pointer-events: none;
     }
     #status-bar {
-      width: 100%; background: rgba(0,0,0,.7);
-      backdrop-filter: blur(8px); padding: 12px 16px;
-      display: flex; align-items: center; gap: 10px;
+      width: 100%; background: rgba(0,0,0,.55);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      padding: 12px 16px; display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
     }
     #dot {
-      width: 10px; height: 10px; border-radius: 50%;
+      width: 9px; height: 9px; border-radius: 50%;
       background: #f59e0b; flex-shrink: 0; transition: background .4s;
     }
     #dot.found   { background: #22c55e; }
     #dot.playing { background: #3b82f6; animation: pulse 1.2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    #status-text { color: #fff; font-size: 13px; }
+    #status-text { color: rgba(255,255,255,.9); font-size: 13px; font-weight: 500; }
     #hint {
-      margin-top: 8px; background: rgba(0,0,0,.5);
-      border: 1px solid rgba(255,255,255,.15); border-radius: 20px;
-      padding: 6px 16px; color: rgba(255,255,255,.7); font-size: 12px;
+      margin-top: 8px;
+      background: rgba(255,255,255,.08);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 20px; padding: 6px 16px;
+      color: rgba(255,255,255,.7); font-size: 12px;
     }
 
+    /* ── Overlay ── */
     #video-overlay {
       display: none; position: fixed; inset: 0; z-index: 1000;
-      background: rgba(0,0,0,.92); flex-direction: column;
-      align-items: center; justify-content: center; gap: 16px;
+      background: rgba(0,0,0,.88);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      flex-direction: column;
+      align-items: center; justify-content: center; gap: 14px;
+      padding: 20px;
     }
     #video-overlay.active { display: flex; }
+
     #yt-frame {
-      width: min(560px, 96vw); aspect-ratio: 16/9;
-      border-radius: 12px; border: none;
-      box-shadow: 0 0 60px rgba(59,130,246,.4);
+      width: min(540px, 96vw); aspect-ratio: 16/9;
+      border-radius: 18px; border: none;
+      box-shadow: 0 8px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08);
     }
+
+    /* ── Botões ── */
+    .action-row {
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+      width: 100%; max-width: 400px;
+    }
+
+    /* Liquid Glass base */
+    .lg-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 20px; border-radius: 999px;
+      font-size: 13px; font-weight: 600; letter-spacing: .2px;
+      cursor: pointer; text-decoration: none;
+      border: 1px solid rgba(255,255,255,.22);
+      backdrop-filter: blur(20px) saturate(200%);
+      -webkit-backdrop-filter: blur(20px) saturate(200%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.25),
+        inset 0 -1px 0 rgba(0,0,0,.15),
+        0 4px 24px rgba(0,0,0,.3),
+        0 1px 4px rgba(0,0,0,.2);
+      transition: transform .15s, box-shadow .15s, filter .15s;
+      pointer-events: all;
+      flex: 1; min-width: 100px;
+    }
+    .lg-btn:active { transform: scale(.96); }
+
+    /* WhatsApp – verde liquid glass */
+    #whatsapp-btn {
+      background: linear-gradient(135deg, rgba(37,211,102,.55) 0%, rgba(18,140,67,.45) 100%);
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,.3);
+    }
+    #whatsapp-btn:hover { filter: brightness(1.12); }
+
+    /* Instagram – roxo/pink liquid glass */
+    #instagram-btn {
+      background: linear-gradient(135deg, rgba(193,53,132,.5) 0%, rgba(131,58,180,.45) 100%);
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,.3);
+    }
+    #instagram-btn:hover { filter: brightness(1.12); }
+
+    /* Google – branco/neutro liquid glass */
+    #google-btn {
+      background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.08) 100%);
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,.4);
+    }
+    #google-btn:hover { filter: brightness(1.15); }
+
+    /* Fechar – neutro escuro */
     #close-btn {
-      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.25);
-      color: #fff; font-size: 14px; padding: 10px 28px;
-      border-radius: 999px; cursor: pointer; pointer-events: all;
+      background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.05) 100%);
+      color: rgba(255,255,255,.75);
+      font-size: 13px; font-weight: 500;
+      flex: 0 0 auto; padding: 11px 24px;
     }
+    #close-btn:hover { filter: brightness(1.2); }
 
-    #open-btn {
-      display: none; position: fixed; bottom: 40px; left: 50%;
-      transform: translateX(-50%); z-index: 998;
-      background: #3b82f6; color: #fff; font-size: 16px; font-weight: 600;
-      padding: 14px 36px; border-radius: 999px; border: none; cursor: pointer;
-      box-shadow: 0 4px 30px rgba(59,130,246,.5);
-      animation: bounce .8s ease infinite alternate; pointer-events: all;
-    }
-    #open-btn.visible { display: block; }
-    @keyframes bounce {
-      from { transform: translateX(-50%) translateY(0); }
-      to   { transform: translateX(-50%) translateY(-6px); }
-    }
-
+    /* ── Loading ── */
     #loading {
       position: fixed; inset: 0; z-index: 997;
       display: flex; flex-direction: column;
@@ -73,22 +126,78 @@
     }
     #loading.hidden { display: none; }
     .spinner {
-      width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.2);
+      width: 38px; height: 38px;
+      border: 2.5px solid rgba(255,255,255,.15);
       border-top-color: #3b82f6; border-radius: 50%;
       animation: spin .8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #loading p { color: #fff; font-size: 13px; opacity: .8; }
+    #loading p { color: rgba(255,255,255,.7); font-size: 13px; }
+
+    /* ── Open btn ── */
+    #open-btn {
+      display: none; position: fixed; bottom: 40px; left: 50%;
+      transform: translateX(-50%); z-index: 998;
+      background: rgba(59,130,246,.7);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      color: #fff; font-size: 15px; font-weight: 600;
+      padding: 14px 36px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.2);
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 4px 30px rgba(59,130,246,.4);
+      animation: bounce .8s ease infinite alternate; pointer-events: all;
+    }
+    #open-btn.visible { display: block; }
+    @keyframes bounce {
+      from { transform: translateX(-50%) translateY(0); }
+      to   { transform: translateX(-50%) translateY(-6px); }
+    }
   </style>
 </head>
 <body>
+
+
+  <!-- Aviso navegador Instagram/Facebook -->
+  <div id="browser-warn" style="display:none; position:fixed; inset:0; z-index:9999;
+    background: rgba(0,0,0,.95); backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:20px; padding:32px; text-align:center;">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="12" fill="#f59e0b"/>
+      <path d="M12 7v5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="12" cy="16.5" r="1.2" fill="#fff"/>
+    </svg>
+    <p style="color:#fff; font-size:19px; font-weight:700; line-height:1.3;">
+      Abra no Chrome<br>para usar a câmera
+    </p>
+    <p style="color:rgba(255,255,255,.65); font-size:14px; line-height:1.7;">
+      Este link precisa ser aberto no<br>
+      <strong style="color:#fff">Google Chrome</strong> para funcionar.<br><br>
+      Toque nos <strong style="color:#fff">3 pontinhos ⋮</strong> (canto superior)<br>
+      e escolha <strong style="color:#fff">"Abrir no navegador"</strong>
+    </p>
+    <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15);
+      border-radius:16px; padding:14px 20px; width:100%; max-width:300px;">
+      <p style="color:rgba(255,255,255,.45); font-size:11px; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">ou copie o link</p>
+      <p style="color:#60a5fa; font-size:13px; word-break:break-all; font-weight:600;">
+        jwcmoura.github.io/arjwcmoura/
+      </p>
+    </div>
+    <button onclick="document.getElementById('browser-warn').style.display='none'"
+      style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+      color:rgba(255,255,255,.5); font-size:12px; padding:10px 24px;
+      border-radius:999px; cursor:pointer; margin-top:4px;">
+      Continuar mesmo assim
+    </button>
+  </div>
 
   <div id="hud">
     <div id="status-bar">
       <div id="dot"></div>
       <span id="status-text">Carregando…</span>
     </div>
-    <div id="hint">Aponte para a logo</div>
+    <div id="hint">Aponte para o marcador JC</div>
   </div>
 
   <div id="loading">
@@ -100,7 +209,36 @@
 
   <div id="video-overlay">
     <iframe id="yt-frame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
-    <button id="close-btn" onclick="closeVideo()">✕ Fechar</button>
+
+    <div class="action-row">
+      <!-- WhatsApp -->
+      <a id="whatsapp-btn" class="lg-btn" href="https://wa.me/5583999890848" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 32 32" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.164 0 0 7.163 0 16c0 2.825.738 5.484 2.027 7.795L0 32l8.412-2.004A15.93 15.93 0 0 0 16 32c8.836 0 16-7.163 16-16S24.836 0 16 0zm0 29.538a13.51 13.51 0 0 1-6.88-1.883l-.493-.292-5.197 1.238 1.265-4.999-.32-.512A13.472 13.472 0 0 1 2.462 16C2.462 8.517 8.517 2.462 16 2.462S29.538 8.517 29.538 16 23.483 29.538 16 29.538zm7.406-10.116c-.406-.203-2.4-1.184-2.772-1.32-.372-.135-.643-.203-.913.203-.271.406-1.048 1.32-1.285 1.59-.237.271-.474.304-.88.101-.406-.203-1.714-.632-3.263-2.015-1.206-1.076-2.02-2.405-2.257-2.811-.237-.406-.025-.625.178-.827.183-.181.406-.474.61-.711.203-.237.27-.406.406-.677.135-.271.068-.508-.034-.711-.101-.203-.913-2.203-1.251-3.016-.33-.791-.664-.684-.913-.696l-.778-.013c-.271 0-.711.101-1.083.508-.372.406-1.42 1.387-1.42 3.382s1.454 3.923 1.657 4.194c.203.271 2.862 4.372 6.933 6.131.969.418 1.724.668 2.313.856.972.309 1.857.265 2.557.161.78-.116 2.4-.981 2.738-1.928.338-.947.338-1.76.237-1.928-.101-.169-.372-.271-.778-.474z"/>
+        </svg>
+        WhatsApp
+      </a>
+
+      <!-- Instagram -->
+      <a id="instagram-btn" class="lg-btn" href="https://www.instagram.com/jwcmoura" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+        Instagram
+      </a>
+
+      <!-- Google Review -->
+      <a id="google-btn" class="lg-btn" href="https://g.page/r/CfUqCIDpc4KVEBM/review" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Avaliar
+      </a>
+    </div>
+
   </div>
 
   <a-scene
@@ -118,7 +256,14 @@
   </a-scene>
 
   <script>
-    const YT_URL = 'https://www.youtube.com/embed/cFcAtGFtzoI?autoplay=1&rel=0';
+    // Detecta navegador interno do Instagram/Facebook
+    const ua = navigator.userAgent || '';
+    const isInAppBrowser = /Instagram|FBAN|FBAV|FB_IAB|Line|Twitter|Snapchat/i.test(ua);
+    if (isInAppBrowser) {
+      document.getElementById('browser-warn').style.display = 'flex';
+    }
+
+    const YT_URL = 'https://www.youtube.com/embed/cFcAtGFtzoI?autoplay=1&rel=0&mute=0&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3&disablekb=1';
     const dot        = document.getElementById('dot');
     const statusText = document.getElementById('status-text');
     const openBtn    = document.getElementById('open-btn');
@@ -127,23 +272,22 @@
     const loading    = document.getElementById('loading');
     let markerVisible = false;
 
-    const sceneEl = document.querySelector('a-scene');
-    sceneEl.addEventListener('loaded', () => {
+    document.querySelector('a-scene').addEventListener('loaded', () => {
       loading.classList.add('hidden');
-      statusText.textContent = 'Câmera pronta – aponte para a logo';
+      statusText.textContent = 'Câmera pronta – aponte para o marcador JC';
     });
 
     const marker = document.getElementById('marker');
     marker.addEventListener('targetFound', () => {
       markerVisible = true;
       dot.className = 'found';
-      statusText.textContent = 'logo encontrada!';
+      statusText.textContent = 'Marcador encontrado!';
       openVideo();
     });
     marker.addEventListener('targetLost', () => {
       markerVisible = false;
       dot.className = '';
-      statusText.textContent = 'Procurando logo…';
+      statusText.textContent = 'Procurando marcador…';
       closeVideo();
     });
 
@@ -157,7 +301,7 @@
       ytFrame.src = '';
       overlay.classList.remove('active');
       dot.className = markerVisible ? 'found' : '';
-      statusText.textContent = markerVisible ? 'logo encontrado!' : 'Procurando logo…';
+      statusText.textContent = markerVisible ? 'Marcador encontrado!' : 'Procurando marcador…';
     }
   </script>
 </body>
