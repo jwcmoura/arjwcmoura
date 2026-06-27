@@ -13,12 +13,11 @@
 
     #hud {
       position: fixed; top: 0; left: 0; right: 0; z-index: 999;
-      display: flex; flex-direction: column; align-items: center; pointer-events: none;
+      pointer-events: none;
     }
     #status-bar {
       width: 100%; background: rgba(0,0,0,.45);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       padding: 10px 16px; display: flex; align-items: center; gap: 10px;
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
@@ -28,58 +27,137 @@
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
     #status-text { color: rgba(255,255,255,.85); font-size: 12px; font-weight: 500; }
 
-    /* Botões flutuantes */
-    #ar-buttons {
-      display: none; position: fixed; bottom: 48px; left: 50%;
-      transform: translateX(-50%); z-index: 998;
-      gap: 16px; align-items: center; justify-content: center; pointer-events: all;
+    /* ── Overlay principal ── */
+    #main-overlay {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,.88);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; padding: 16px;
     }
-    #ar-buttons.visible { display: flex; }
+    #main-overlay.active { display: flex; }
+
+    /* ── Layout vídeo + lista ── */
+    #content-row {
+      display: flex; gap: 12px; align-items: flex-start;
+      width: 100%; max-width: 900px;
+    }
+
+    /* Vídeo */
+    #yt-wrap {
+      flex: 1; min-width: 0;
+    }
+    #yt-frame {
+      width: 100%; aspect-ratio: 16/9;
+      border-radius: 16px; border: none;
+      box-shadow: 0 8px 48px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.08);
+    }
+
+    /* ── Lista de serviços ── */
+    #services-panel {
+      width: 220px; flex-shrink: 0;
+      background: rgba(255,255,255,.07);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 16px; overflow: hidden;
+      max-height: 52vw;
+      transition: max-height .5s cubic-bezier(0.22,1,0.36,1), opacity .4s;
+      animation: slideInRight .7s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    #services-panel.collapsed {
+      max-height: 44px; overflow: hidden;
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    #services-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(255,255,255,.1);
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      cursor: pointer; pointer-events: all;
+    }
+    #services-header span {
+      color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .4px;
+    }
+    #toggle-btn {
+      background: none; border: none; color: rgba(255,255,255,.7);
+      font-size: 14px; cursor: pointer; padding: 0 2px;
+      transition: transform .3s;
+    }
+    #services-panel.collapsed #toggle-btn { transform: rotate(180deg); }
+
+    #services-scroll {
+      overflow-y: auto; max-height: calc(52vw - 44px);
+      padding: 8px 0;
+    }
+    #services-scroll::-webkit-scrollbar { width: 3px; }
+    #services-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 2px; }
+
+    .area-title {
+      padding: 8px 14px 4px;
+      color: #60a5fa; font-size: 10px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: .8px;
+    }
+    .area-title:not(:first-child) { margin-top: 6px; border-top: 1px solid rgba(255,255,255,.08); padding-top: 10px; }
+
+    .service-item {
+      display: block; padding: 7px 14px;
+      color: rgba(255,255,255,.85); font-size: 11px; line-height: 1.4;
+      text-decoration: none; cursor: pointer; pointer-events: all;
+      transition: background .15s, color .15s;
+      border-radius: 6px; margin: 0 4px;
+    }
+    .service-item:hover, .service-item:active {
+      background: rgba(96,165,250,.2); color: #fff;
+    }
+    .service-item::before { content: "➡️ "; font-size: 10px; }
+
+    /* ── Botões sociais ── */
+    #ar-buttons {
+      display: flex; gap: 16px; align-items: center; justify-content: center;
+      pointer-events: all;
+    }
     .ar-btn {
       display: flex; flex-direction: column; align-items: center; gap: 6px;
-      text-decoration: none; pointer-events: all;
-      opacity: 0;
+      text-decoration: none; pointer-events: all; opacity: 0;
       transform: translateY(80px) scale(0.5);
-      transition: none;
     }
-    .ar-btn.slide-in {
-      animation: slideUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
-    }
-    .ar-btn.slide-out {
-      animation: slideDown 0.5s cubic-bezier(0.55, 0, 1, 0.45) both;
-    }
+    .ar-btn.slide-in { animation: slideUp .9s cubic-bezier(0.22,1,0.36,1) both; }
+    .ar-btn.slide-out { animation: slideDown .5s cubic-bezier(0.55,0,1,0.45) both; }
     .ar-btn:nth-child(1).slide-in { animation-delay: 0s; }
-    .ar-btn:nth-child(2).slide-in { animation-delay: 0.18s; }
-    .ar-btn:nth-child(3).slide-in { animation-delay: 0.36s; }
-    .ar-btn:nth-child(1).slide-out { animation-delay: 0.12s; }
-    .ar-btn:nth-child(2).slide-out { animation-delay: 0.06s; }
+    .ar-btn:nth-child(2).slide-in { animation-delay: .18s; }
+    .ar-btn:nth-child(3).slide-in { animation-delay: .36s; }
+    .ar-btn:nth-child(1).slide-out { animation-delay: .12s; }
+    .ar-btn:nth-child(2).slide-out { animation-delay: .06s; }
     .ar-btn:nth-child(3).slide-out { animation-delay: 0s; }
     @keyframes slideUp {
-      0%   { opacity: 0; transform: translateY(100px) scale(0.4); filter: blur(6px); }
-      60%  { opacity: 1; filter: blur(0px); }
-      80%  { transform: translateY(-8px) scale(1.05); }
-      100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+      0%   { opacity:0; transform:translateY(100px) scale(.4); filter:blur(6px); }
+      60%  { opacity:1; filter:blur(0); }
+      80%  { transform:translateY(-8px) scale(1.05); }
+      100% { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
     }
     @keyframes slideDown {
-      0%   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
-      100% { opacity: 0; transform: translateY(80px) scale(0.4); filter: blur(6px); }
+      0%   { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+      100% { opacity:0; transform:translateY(80px) scale(.4); filter:blur(6px); }
     }
     .ar-btn-circle {
-      width: 58px; height: 58px; border-radius: 50%;
+      width: 52px; height: 52px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      backdrop-filter: blur(20px) saturate(200%);
-      -webkit-backdrop-filter: blur(20px) saturate(200%);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255,255,255,.25);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.2), 0 8px 32px rgba(0,0,0,.4);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 8px 32px rgba(0,0,0,.4);
       transition: transform .15s;
     }
     .ar-btn-circle:active { transform: scale(.92); }
-    .ar-btn-label { color: #fff; font-size: 11px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,.8); letter-spacing: .3px; }
+    .ar-btn-label { color:#fff; font-size:10px; font-weight:600; text-shadow:0 1px 4px rgba(0,0,0,.8); }
     #btn-whatsapp  .ar-btn-circle { background: linear-gradient(135deg, rgba(37,211,102,.65), rgba(18,140,67,.55)); }
     #btn-instagram .ar-btn-circle { background: linear-gradient(135deg, rgba(193,53,132,.6), rgba(131,58,180,.55)); }
     #btn-google    .ar-btn-circle { background: linear-gradient(135deg, rgba(255,255,255,.2), rgba(255,255,255,.1)); }
 
-    /* Loading */
+    /* ── Loading ── */
     #loading {
       position: fixed; inset: 0; z-index: 997;
       display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
@@ -90,11 +168,19 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     #loading p { color: rgba(255,255,255,.65); font-size: 13px; }
 
-    /* Aviso Instagram */
+    /* ── Aviso Instagram ── */
     #browser-warn {
       display: none; position: fixed; inset: 0; z-index: 9999;
       background: rgba(0,0,0,.96); flex-direction: column; align-items: center; justify-content: center;
       gap: 20px; padding: 32px; text-align: center;
+    }
+
+    /* Responsivo: tela pequena empilha */
+    @media (max-width: 500px) {
+      #content-row { flex-direction: column; align-items: stretch; }
+      #services-panel { width: 100%; max-height: 180px; }
+      #services-panel.collapsed { max-height: 44px; }
+      #services-scroll { max-height: 136px; }
     }
   </style>
 </head>
@@ -136,35 +222,84 @@
     <p>Iniciando câmera…</p>
   </div>
 
-  <!-- Botões flutuantes -->
-  <div id="ar-buttons">
-    <a id="btn-whatsapp" class="ar-btn" href="https://wa.me/5583998908488" target="_blank">
-      <div class="ar-btn-circle">
-        <svg width="26" height="26" viewBox="0 0 32 32" fill="#fff">
-          <path d="M16 0C7.164 0 0 7.163 0 16c0 2.825.738 5.484 2.027 7.795L0 32l8.412-2.004A15.93 15.93 0 0 0 16 32c8.836 0 16-7.163 16-16S24.836 0 16 0zm0 29.538a13.51 13.51 0 0 1-6.88-1.883l-.493-.292-5.197 1.238 1.265-4.999-.32-.512A13.472 13.472 0 0 1 2.462 16C2.462 8.517 8.517 2.462 16 2.462S29.538 8.517 29.538 16 23.483 29.538 16 29.538zm7.406-10.116c-.406-.203-2.4-1.184-2.772-1.32-.372-.135-.643-.203-.913.203-.271.406-1.048 1.32-1.285 1.59-.237.271-.474.304-.88.101-.406-.203-1.714-.632-3.263-2.015-1.206-1.076-2.02-2.405-2.257-2.811-.237-.406-.025-.625.178-.827.183-.181.406-.474.61-.711.203-.237.27-.406.406-.677.135-.271.068-.508-.034-.711-.101-.203-.913-2.203-1.251-3.016-.33-.791-.664-.684-.913-.696l-.778-.013c-.271 0-.711.101-1.083.508-.372.406-1.42 1.387-1.42 3.382s1.454 3.923 1.657 4.194c.203.271 2.862 4.372 6.933 6.131.969.418 1.724.668 2.313.856.972.309 1.857.265 2.557.161.78-.116 2.4-.981 2.738-1.928.338-.947.338-1.76.237-1.928-.101-.169-.372-.271-.778-.474z"/>
-        </svg>
+  <!-- Overlay principal -->
+  <div id="main-overlay">
+
+    <div id="content-row">
+
+      <!-- Vídeo -->
+      <div id="yt-wrap">
+        <iframe id="yt-frame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
       </div>
-      <span class="ar-btn-label">WhatsApp</span>
-    </a>
-    <a id="btn-instagram" class="ar-btn" href="https://www.instagram.com/jwcmoura" target="_blank">
-      <div class="ar-btn-circle">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-        </svg>
+
+      <!-- Lista de Serviços -->
+      <div id="services-panel">
+        <div id="services-header" onclick="toggleServices()">
+          <span>⚖️ Serviços Jurídicos</span>
+          <button id="toggle-btn">▲</button>
+        </div>
+        <div id="services-scroll">
+
+          <div class="area-title">— Direito Penal —</div>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Queixa-crime" target="_blank">Queixa-crime</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20ANPP" target="_blank">Acordo de Não Persecução Penal (ANPP)</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Defesa%20em%20Inquérito%20Policial" target="_blank">Defesa em Inquérito Policial</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Acompanhamento%20em%20Delegacia" target="_blank">Acompanhamento em Delegacia</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Medidas%20Protetivas" target="_blank">Medidas Protetivas</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Audiência%20de%20Custódia" target="_blank">Audiência de Custódia</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Prisões" target="_blank">Prisões (Flagrante e Preventiva)</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Análise%20Processual" target="_blank">Análise Processual</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Recursos%20Criminais" target="_blank">Recursos Criminais</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Revisão%20Criminal" target="_blank">Revisão Criminal</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Habeas%20Corpus" target="_blank">Habeas Corpus</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Prisões%20Civis" target="_blank">Prisões Civis</a>
+
+          <div class="area-title">— Execução Penal —</div>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Progressão%20de%20Regime" target="_blank">Progressão de Regime</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Liberdade%20Provisória" target="_blank">Liberdade Provisória</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Remição%20de%20Pena" target="_blank">Remição de Pena</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Liberdade%20Condicional" target="_blank">Liberdade Condicional</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Comutação%20de%20Pena" target="_blank">Comutação de Pena</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Prisão%20Domiciliar" target="_blank">Prisão Domiciliar</a>
+
+          <div class="area-title">— Direito de Família —</div>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Tutela%20de%20Urgência" target="_blank">Tutela de Urgência</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Guarda%20Compartilhada" target="_blank">Guarda Compartilhada</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Guarda%20Unilateral" target="_blank">Guarda Unilateral</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Pedido%20de%20Alimentos" target="_blank">Pedido de Alimentos</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Exoneração%20de%20Alimentos" target="_blank">Exoneração de Alimentos</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Revisão%20de%20Alimentos" target="_blank">Revisão de Alimentos</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Investigação%20de%20Paternidade" target="_blank">Investigação de Paternidade</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20União%20Estável" target="_blank">Reconhecimento e Dissolução de União Estável</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Divórcio" target="_blank">Divórcio (Judicial e Extrajudicial)</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Regulamentação%20de%20Visitas" target="_blank">Regulamentação de Visitas</a>
+          <a class="service-item" href="https://wa.me/5583999890848?text=Olá!%20Gostaria%20de%20saber%20sobre%20Interdição%20e%20Curatela" target="_blank">Interdição e Curatela</a>
+
+        </div>
       </div>
-      <span class="ar-btn-label">Instagram</span>
-    </a>
-    <a id="btn-google" class="ar-btn" href="https://g.page/r/CfUqCIDpc4KVEBM/review" target="_blank">
-      <div class="ar-btn-circle">
-        <svg width="26" height="26" viewBox="0 0 24 24">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-      </div>
-      <span class="ar-btn-label">Avaliar</span>
-    </a>
+    </div>
+
+    <!-- Botões sociais -->
+    <div id="ar-buttons">
+      <a id="btn-whatsapp" class="ar-btn" href="https://wa.me/5583999890848" target="_blank">
+        <div class="ar-btn-circle">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="#fff"><path d="M16 0C7.164 0 0 7.163 0 16c0 2.825.738 5.484 2.027 7.795L0 32l8.412-2.004A15.93 15.93 0 0 0 16 32c8.836 0 16-7.163 16-16S24.836 0 16 0zm0 29.538a13.51 13.51 0 0 1-6.88-1.883l-.493-.292-5.197 1.238 1.265-4.999-.32-.512A13.472 13.472 0 0 1 2.462 16C2.462 8.517 8.517 2.462 16 2.462S29.538 8.517 29.538 16 23.483 29.538 16 29.538zm7.406-10.116c-.406-.203-2.4-1.184-2.772-1.32-.372-.135-.643-.203-.913.203-.271.406-1.048 1.32-1.285 1.59-.237.271-.474.304-.88.101-.406-.203-1.714-.632-3.263-2.015-1.206-1.076-2.02-2.405-2.257-2.811-.237-.406-.025-.625.178-.827.183-.181.406-.474.61-.711.203-.237.27-.406.406-.677.135-.271.068-.508-.034-.711-.101-.203-.913-2.203-1.251-3.016-.33-.791-.664-.684-.913-.696l-.778-.013c-.271 0-.711.101-1.083.508-.372.406-1.42 1.387-1.42 3.382s1.454 3.923 1.657 4.194c.203.271 2.862 4.372 6.933 6.131.969.418 1.724.668 2.313.856.972.309 1.857.265 2.557.161.78-.116 2.4-.981 2.738-1.928.338-.947.338-1.76.237-1.928-.101-.169-.372-.271-.778-.474z"/></svg>
+        </div>
+        <span class="ar-btn-label">WhatsApp</span>
+      </a>
+      <a id="btn-instagram" class="ar-btn" href="https://www.instagram.com/jwcmoura" target="_blank">
+        <div class="ar-btn-circle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </div>
+        <span class="ar-btn-label">Instagram</span>
+      </a>
+      <a id="btn-google" class="ar-btn" href="https://g.page/r/CfUqCIDpc4KVEBM/review" target="_blank">
+        <div class="ar-btn-circle">
+          <svg width="24" height="24" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        </div>
+        <span class="ar-btn-label">Avaliar</span>
+      </a>
+    </div>
   </div>
 
   <!-- Cena AR -->
@@ -175,60 +310,14 @@
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false"
   >
-    <a-assets>
-      <!-- O vídeo precisa ser um MP4 direto — YouTube não funciona como textura 3D -->
-      <!-- Substitua VIDEO_URL pelo link direto do seu MP4 hospedado -->
-      <video
-        id="ar-video"
-        src="./video-adv-jwcmoura.mp4"
-        autoplay
-        loop
-        muted
-        playsinline
-        crossorigin="anonymous"
-        webkit-playsinline
-      ></video>
-    </a-assets>
-
-    <a-camera position="0 0 0" look-controls="enabled: false" id="main-camera"></a-camera>
-    <a-light type="ambient" color="#ffffff" intensity="1.5"></a-light>
-
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
     <a-entity mindar-image-target="targetIndex: 0" id="marker">
-
-      <!-- Tela billboard: sempre olha para a câmera -->
-      <a-plane
-        id="video-screen"
-        material="shader: flat; src: #ar-video; side: double;"
-        width="1.6"
-        height="0.9"
-        position="0 0.5 0"
-        shadow="cast: false"
-        billboard
-      >
-        <a-animation
-          attribute="scale"
-          from="0 0 0"
-          to="1 1 1"
-          dur="600"
-          easing="easeOutBack"
-          fill="forwards"
-        ></a-animation>
-      </a-plane>
-
+      <a-plane color="#ffffff" opacity="0.01" width="1" height="1" position="0 0 0"></a-plane>
     </a-entity>
   </a-scene>
 
   <script>
-    // Componente billboard — tela sempre vira para a câmera
-    AFRAME.registerComponent('billboard', {
-      tick: function () {
-        const camera = document.getElementById('main-camera');
-        if (!camera) return;
-        const camPos = new THREE.Vector3();
-        camera.object3D.getWorldPosition(camPos);
-        this.el.object3D.lookAt(camPos);
-      }
-    });
+    const YT_URL = 'https://www.youtube.com/embed/cFcAtGFtzoI?autoplay=1&rel=0&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3&disablekb=1';
 
     // Detecta Instagram/Facebook
     const ua = navigator.userAgent || '';
@@ -239,8 +328,8 @@
     const dot        = document.getElementById('dot');
     const statusText = document.getElementById('status-text');
     const loading    = document.getElementById('loading');
-    const arButtons  = document.getElementById('ar-buttons');
-    const arVideo    = document.getElementById('ar-video');
+    const overlay    = document.getElementById('main-overlay');
+    const ytFrame    = document.getElementById('yt-frame');
 
     document.querySelector('a-scene').addEventListener('loaded', () => {
       loading.classList.add('hidden');
@@ -252,28 +341,30 @@
     marker.addEventListener('targetFound', () => {
       dot.className = 'playing';
       statusText.textContent = 'Reproduzindo…';
-      arButtons.classList.add('visible');
-      // Animação de entrada deslizante
+      ytFrame.src = YT_URL;
+      overlay.classList.add('active');
       document.querySelectorAll('.ar-btn').forEach(btn => {
         btn.classList.remove('slide-out');
-        void btn.offsetHeight; // força reflow
+        void btn.offsetHeight;
         btn.classList.add('slide-in');
       });
-      if (arVideo) arVideo.play();
     });
 
     marker.addEventListener('targetLost', () => {
       dot.className = '';
       statusText.textContent = 'Aponte para o marcador JC';
-      // Animação de saída
+      ytFrame.src = '';
       document.querySelectorAll('.ar-btn').forEach(btn => {
         btn.classList.remove('slide-in');
         void btn.offsetHeight;
         btn.classList.add('slide-out');
       });
-      setTimeout(() => arButtons.classList.remove('visible'), 700);
-      if (arVideo) arVideo.pause();
+      setTimeout(() => overlay.classList.remove('active'), 600);
     });
+
+    function toggleServices() {
+      document.getElementById('services-panel').classList.toggle('collapsed');
+    }
   </script>
 </body>
 </html>
