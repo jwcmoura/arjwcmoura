@@ -72,7 +72,6 @@
       to   { transform: translateX(-50%) translateY(-6px); }
     }
 
-    /* Loading NFT */
     #loading {
       position: fixed; inset: 0; z-index: 997;
       display: flex; flex-direction: column;
@@ -126,7 +125,7 @@
 
     <a-nft
       type="nft"
-      url="./markers/marcador"
+      url="./marcador"
       smooth="true"
       smoothCount="10"
       smoothTolerance="0.01"
@@ -134,7 +133,6 @@
       id="marker"
       emitevents="true"
     >
-      <!-- Plano invisível só para disparar eventos -->
       <a-plane color="#ffffff" opacity="0.01" width="1" height="1" rotation="-90 0 0"></a-plane>
     </a-nft>
 
