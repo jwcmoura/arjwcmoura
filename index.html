@@ -156,6 +156,42 @@
 </head>
 <body>
 
+
+  <!-- Aviso navegador Instagram/Facebook -->
+  <div id="browser-warn" style="display:none; position:fixed; inset:0; z-index:9999;
+    background: rgba(0,0,0,.95); backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:20px; padding:32px; text-align:center;">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="12" fill="#f59e0b"/>
+      <path d="M12 7v5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+      <circle cx="12" cy="16.5" r="1.2" fill="#fff"/>
+    </svg>
+    <p style="color:#fff; font-size:19px; font-weight:700; line-height:1.3;">
+      Abra no Chrome<br>para usar a câmera
+    </p>
+    <p style="color:rgba(255,255,255,.65); font-size:14px; line-height:1.7;">
+      Este link precisa ser aberto no<br>
+      <strong style="color:#fff">Google Chrome</strong> para funcionar.<br><br>
+      Toque nos <strong style="color:#fff">3 pontinhos ⋮</strong> (canto superior)<br>
+      e escolha <strong style="color:#fff">"Abrir no navegador"</strong>
+    </p>
+    <div style="background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15);
+      border-radius:16px; padding:14px 20px; width:100%; max-width:300px;">
+      <p style="color:rgba(255,255,255,.45); font-size:11px; margin-bottom:6px; text-transform:uppercase; letter-spacing:.5px;">ou copie o link</p>
+      <p style="color:#60a5fa; font-size:13px; word-break:break-all; font-weight:600;">
+        jwcmoura.github.io/arjwcmoura/
+      </p>
+    </div>
+    <button onclick="document.getElementById('browser-warn').style.display='none'"
+      style="background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.18);
+      color:rgba(255,255,255,.5); font-size:12px; padding:10px 24px;
+      border-radius:999px; cursor:pointer; margin-top:4px;">
+      Continuar mesmo assim
+    </button>
+  </div>
+
   <div id="hud">
     <div id="status-bar">
       <div id="dot"></div>
@@ -203,7 +239,6 @@
       </a>
     </div>
 
-    <button id="close-btn" class="lg-btn" onclick="closeVideo()">✕ Fechar</button>
   </div>
 
   <a-scene
@@ -221,7 +256,14 @@
   </a-scene>
 
   <script>
-    const YT_URL = 'https://www.youtube.com/embed/cFcAtGFtzoI?autoplay=1&rel=0&mute=0';
+    // Detecta navegador interno do Instagram/Facebook
+    const ua = navigator.userAgent || '';
+    const isInAppBrowser = /Instagram|FBAN|FBAV|FB_IAB|Line|Twitter|Snapchat/i.test(ua);
+    if (isInAppBrowser) {
+      document.getElementById('browser-warn').style.display = 'flex';
+    }
+
+    const YT_URL = 'https://www.youtube.com/embed/cFcAtGFtzoI?autoplay=1&rel=0&mute=0&controls=0&modestbranding=1&showinfo=0&iv_load_policy=3&disablekb=1';
     const dot        = document.getElementById('dot');
     const statusText = document.getElementById('status-text');
     const openBtn    = document.getElementById('open-btn');
