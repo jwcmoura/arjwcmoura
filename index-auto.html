@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>WebAR – Marcador JC</title>
+  <title>WebAR – Logo JWCMOURA</title>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image.prod.js"></script>
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
@@ -88,7 +88,7 @@
       <div id="dot"></div>
       <span id="status-text">Carregando…</span>
     </div>
-    <div id="hint">Aponte para o marcador JC</div>
+    <div id="hint">Aponte para a logo</div>
   </div>
 
   <div id="loading">
@@ -118,7 +118,7 @@
   </a-scene>
 
   <script>
-    const YT_URL = 'https://www.youtube.com/embed/wbllUy8h97M?autoplay=1&rel=0';
+    const YT_URL = 'https://www.youtube.com/embed/cFcAtGFtzoI?autoplay=1&rel=0';
     const dot        = document.getElementById('dot');
     const statusText = document.getElementById('status-text');
     const openBtn    = document.getElementById('open-btn');
@@ -130,20 +130,20 @@
     const sceneEl = document.querySelector('a-scene');
     sceneEl.addEventListener('loaded', () => {
       loading.classList.add('hidden');
-      statusText.textContent = 'Câmera pronta – aponte para o marcador JC';
+      statusText.textContent = 'Câmera pronta – aponte para a logo';
     });
 
     const marker = document.getElementById('marker');
     marker.addEventListener('targetFound', () => {
       markerVisible = true;
       dot.className = 'found';
-      statusText.textContent = 'Marcador encontrado!';
+      statusText.textContent = 'logo encontrada!';
       openVideo();
     });
     marker.addEventListener('targetLost', () => {
       markerVisible = false;
       dot.className = '';
-      statusText.textContent = 'Procurando marcador…';
+      statusText.textContent = 'Procurando logo…';
       closeVideo();
     });
 
@@ -157,7 +157,7 @@
       ytFrame.src = '';
       overlay.classList.remove('active');
       dot.className = markerVisible ? 'found' : '';
-      statusText.textContent = markerVisible ? 'Marcador encontrado!' : 'Procurando marcador…';
+      statusText.textContent = markerVisible ? 'logo encontrado!' : 'Procurando logo…';
     }
   </script>
 </body>
