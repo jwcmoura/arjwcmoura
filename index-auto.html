@@ -88,7 +88,7 @@
       <div id="dot"></div>
       <span id="status-text">Carregando…</span>
     </div>
-    <div id="hint">Aponte para o marcador JC</div>
+    <div id="hint">Aponte para a logo</div>
   </div>
 
   <div id="loading">
@@ -130,7 +130,7 @@
     const sceneEl = document.querySelector('a-scene');
     sceneEl.addEventListener('loaded', () => {
       loading.classList.add('hidden');
-      statusText.textContent = 'Câmera pronta – aponte para o marcador JC';
+      statusText.textContent = 'Câmera pronta – aponte para a logo';
     });
 
     const marker = document.getElementById('marker');
