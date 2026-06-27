@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>WebAR – Marcador JC</title>
 
-  <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1.4.2/dist/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ar.js@2.2.2/aframe/build/aframe-ar.min.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,10 +28,8 @@
     }
     #dot.found   { background: #22c55e; }
     #dot.playing { background: #3b82f6; animation: pulse 1.2s infinite; }
-
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-
-    #status-text { color: #fff; font-size: 13px; letter-spacing: .3px; }
+    #status-text { color: #fff; font-size: 13px; }
     #hint {
       margin-top: 8px; background: rgba(0,0,0,.5);
       border: 1px solid rgba(255,255,255,.15); border-radius: 20px;
@@ -44,7 +42,6 @@
       align-items: center; justify-content: center; gap: 16px;
     }
     #video-overlay.active { display: flex; }
-
     #yt-frame {
       width: min(560px, 96vw); aspect-ratio: 16/9;
       border-radius: 12px; border: none;
@@ -54,9 +51,7 @@
       background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.25);
       color: #fff; font-size: 14px; padding: 10px 28px;
       border-radius: 999px; cursor: pointer; pointer-events: all;
-      transition: background .2s;
     }
-    #close-btn:hover { background: rgba(255,255,255,.2); }
 
     #open-btn {
       display: none; position: fixed; bottom: 40px; left: 50%;
@@ -71,21 +66,6 @@
       from { transform: translateX(-50%) translateY(0); }
       to   { transform: translateX(-50%) translateY(-6px); }
     }
-
-    #loading {
-      position: fixed; inset: 0; z-index: 997;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 12px;
-      background: rgba(0,0,0,.7); pointer-events: none;
-    }
-    #loading.hidden { display: none; }
-    .spinner {
-      width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.2);
-      border-top-color: #3b82f6; border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    #loading p { color: #fff; font-size: 13px; opacity: .7; }
   </style>
 </head>
 <body>
@@ -93,67 +73,37 @@
   <div id="hud">
     <div id="status-bar">
       <div id="dot"></div>
-      <span id="status-text">Carregando marcador NFT…</span>
+      <span id="status-text">Aponte para o marcador Hiro</span>
     </div>
-    <div id="hint">Aponte para o marcador JC</div>
-  </div>
-
-  <div id="loading">
-    <div class="spinner"></div>
-    <p>Carregando detector de imagem…</p>
+    <div id="hint">Aponte a câmera para o marcador</div>
   </div>
 
   <button id="open-btn" onclick="openVideo()">▶ Assistir vídeo</button>
 
   <div id="video-overlay">
-    <iframe
-      id="yt-frame"
-      src=""
-      allow="autoplay; fullscreen"
-      allowfullscreen
-    ></iframe>
+    <iframe id="yt-frame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
     <button id="close-btn" onclick="closeVideo()">✕ Fechar</button>
   </div>
 
   <a-scene
     embedded
-    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
-    renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
+    arjs="sourceType: webcam; debugUIEnabled: false;"
     vr-mode-ui="enabled: false"
   >
+    <a-marker preset="hiro" id="marker" emitevents="true">
+      <a-box position="0 0.5 0" material="color: #3b82f6;" scale="0.5 0.5 0.5"></a-box>
+    </a-marker>
     <a-entity camera></a-entity>
-
-    <a-nft
-      type="nft"
-      url="./marcador"
-      smooth="true"
-      smoothCount="10"
-      smoothTolerance="0.01"
-      smoothThreshold="5"
-      id="marker"
-      emitevents="true"
-    >
-      <a-plane color="#ffffff" opacity="0.01" width="1" height="1" rotation="-90 0 0"></a-plane>
-    </a-nft>
-
   </a-scene>
 
   <script>
     const YT_URL = 'https://www.youtube.com/embed/wbllUy8h97M?autoplay=1&rel=0';
-
     const dot        = document.getElementById('dot');
     const statusText = document.getElementById('status-text');
     const openBtn    = document.getElementById('open-btn');
     const overlay    = document.getElementById('video-overlay');
     const ytFrame    = document.getElementById('yt-frame');
-    const loading    = document.getElementById('loading');
-
     let markerVisible = false;
-
-    document.querySelector('a-scene').addEventListener('loaded', () => {
-      loading.classList.add('hidden');
-      statusText.textContent = 'Câmera pronta – aponte para o marcador JC';
-    });
 
     document.getElementById('marker').addEventListener('markerFound', () => {
       markerVisible = true;
